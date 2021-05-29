@@ -1,7 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
-const userRouter = require(`${__dirname}/routes/userRouter`);
-const tourRouter = require(`${__dirname}/routes/tourRouter`);
+const userRouter = require('./routes/userRouter');
+const tourRouter = require('./routes/tourRouter');
 
 const app = express();
 
@@ -12,10 +12,6 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
-app.use((req, resp, next) => {
-  console.log('Hello from the middleware');
-  next();
-});
 app.use((req, resp, next) => {
   req.requestTime = new Date().toISOString();
   next();
