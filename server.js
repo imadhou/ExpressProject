@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const app = require('./app');
-
 //dotenv is a package that manages environement for nodejs,
 //we can specify the env_vars in config.env then using them by calling process
 dotenv.config({ path: './config.env' });
+
+const app = require('./app');
+
 const DB = process.env.DATABASE.replace(
   '<Password>',
   process.env.DATABASE_PASSWORD

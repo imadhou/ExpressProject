@@ -1,4 +1,5 @@
 const express = require('express');
+//morgan for having a better log infos
 const morgan = require('morgan');
 const userRouter = require('./routes/userRouter');
 const tourRouter = require('./routes/tourRouter');
@@ -9,6 +10,7 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+//json() is a better alternative for end()
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
