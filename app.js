@@ -2,6 +2,8 @@ const express = require('express');
 //morgan for having a better log infos it's just a dev dependency
 const morgan = require('morgan');
 
+const ErrorHandler = require('./utils/errorHandlers');
+const globalErrorHandler = require('./controllers/ErrorController');
 const userRouter = require('./routes/userRouter');
 const tourRouter = require('./routes/tourRouter');
 
@@ -19,7 +21,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 //json() is a better alternative for end()
-//app.use(express.json());
+app.use(express.json());
 app.use((req, resp, next) => {
   req.requestTime = new Date().toISOString();
   next();
@@ -28,5 +30,10 @@ app.use((req, resp, next) => {
 //we call our routers (middleware) on the defined routes
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.all('*', (req, resp, next) => {
+  next(new ErrorHandler(`can't find ${req.originalUrl} on the server`, 404));
+});
+
+app.use(globalErrorHandler);
 
 module.exports = app;
