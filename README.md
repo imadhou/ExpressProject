@@ -1,2 +1,2 @@
 # ExpressProject
-Implementing a system of reservayion of tours using a nodejs express api connected to a mongodb database
+A web application for selling tours developed with NodeJS as a web server, Express for the backend part (a rest API) MongoDB as a database, PUG for server rendring (React when the API will be completed).
