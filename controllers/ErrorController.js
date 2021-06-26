@@ -43,6 +43,12 @@ const validationErrorDB = (err) => {
   return new ErrorHandler(message, 400);
 };
 
+const jwtError = () =>
+  new ErrorHandler('Invalid jwToken! please try to login', 401);
+
+const tokenExpiredError = () =>
+  new ErrorHandler('Token expired, Please login again', 401);
+
 module.exports = (err, req, resp, next) => {
   err.statusCode = err.statusCode * 1 || 500;
   err.status = err.status || 'error';
@@ -61,6 +67,13 @@ module.exports = (err, req, resp, next) => {
 
     if (err.name === 'ValidationError') {
       error = validationErrorDB(error);
+    }
+
+    if (err.name === 'JsonWebTokenError') {
+      error = jwtError();
+    }
+    if (err.name === 'TokenExpiredError') {
+      error = tokenExpiredError();
     }
     prodError(error, resp);
   }
