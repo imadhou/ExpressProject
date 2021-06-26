@@ -5,8 +5,7 @@ process.on('uncaughtException', (err) => {
   console.log(err.name, err.message);
   process.exit(1);
 });
-//dotenv is a package that manages environement for nodejs,
-//we can specify the env_vars in config.env then using them by calling process
+
 dotenv.config({ path: './config.env' });
 
 const app = require('./app');

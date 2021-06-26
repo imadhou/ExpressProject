@@ -1,0 +1,5 @@
+1- error = new ErrorHandler(message, statusCode) returns an object of the ErrorHandler class (which extends the Error class) with 
+more error informations;
+2- next(error) (express recognize that it's an error even if we don't call throw new Error and emits an error event)
+3- the error is intercepted (handled) by the errorController middleware that will respond according to the error status and will 
+create custom messages

@@ -6,12 +6,14 @@ const catchAsync = require('../utils/catchAsync');
 const ErrorHandler = require('../utils/errorHandlers');
 const sendEmail = require('../utils/email');
 
+//signing a jwt (the user id is wrapped in the payload)
 const signToken = (_id) =>
   jwt.sign({ id: _id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const createAbdSendToken = (user, statusCode, resp) => {
+//creating the token and sending it through the response body and in a cookie
+const createAndSendToken = (user, statusCode, resp) => {
   const token = signToken(user._id);
   const cookie = {
     expires: new Date(
@@ -33,6 +35,7 @@ const createAbdSendToken = (user, statusCode, resp) => {
   });
 };
 
+// handler for the create user route
 exports.signup = catchAsync(async (req, resp, next) => {
   const user = await User.create({
     name: req.body.name,
@@ -42,9 +45,10 @@ exports.signup = catchAsync(async (req, resp, next) => {
     role: req.body.role,
   });
 
-  createAbdSendToken(user, 201, resp);
+  createAndSendToken(user, 201, resp);
 });
 
+// liging in a user and sending a jwt if the submited data is valid
 exports.login = catchAsync(async (req, resp, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -61,9 +65,10 @@ exports.login = catchAsync(async (req, resp, next) => {
     return next(new ErrorHandler('Incorrect email or password', 401));
   }
 
-  createAbdSendToken(user, 200, resp);
+  createAndSendToken(user, 200, resp);
 });
 
+//this middleware is first run if a route is protected (needs login )
 exports.protectRoute = catchAsync(async (req, resp, next) => {
   let token;
 
@@ -105,6 +110,7 @@ exports.protectRoute = catchAsync(async (req, resp, next) => {
   next();
 });
 
+//this middleware is restricting access to some type of users (roles)
 exports.restrictTo = (...roles) => {
   return (req, resp, next) => {
     if (!roles.includes(req.user.role)) {
@@ -116,6 +122,7 @@ exports.restrictTo = (...roles) => {
   };
 };
 
+//sending a token for reseting the password
 exports.forgotPassword = catchAsync(async (req, resp, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
@@ -128,7 +135,6 @@ exports.forgotPassword = catchAsync(async (req, resp, next) => {
   }
 
   const resetToken = user.generatePasswordResetToke();
-  console.log({ resetToken }, { user });
   await user.save({ validateBeforeSave: false });
 
   const resetURL = `${req.protocol}://${req.get(
@@ -155,6 +161,8 @@ exports.forgotPassword = catchAsync(async (req, resp, next) => {
     message: 'token sent to your mail',
   });
 });
+
+//handling the reset password route
 exports.resetPassword = catchAsync(async (req, resp, next) => {
   const hashedToken = crypto
     .createHash('sha256')
@@ -177,9 +185,10 @@ exports.resetPassword = catchAsync(async (req, resp, next) => {
 
   await user.save();
 
-  createAbdSendToken(user, 200, resp);
+  createAndSendToken(user, 200, resp);
 });
 
+//updating the current logged in userd password
 exports.updatePasswor = catchAsync(async (req, resp, next) => {
   const user = await User.findById(req.user.id).select('+password');
 
@@ -195,5 +204,5 @@ exports.updatePasswor = catchAsync(async (req, resp, next) => {
   user.passwordConfirm = req.body.passwordConfirm;
   await user.save();
 
-  createAbdSendToken(user, 200, resp);
+  createAndSendToken(user, 200, resp);
 });

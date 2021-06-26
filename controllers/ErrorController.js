@@ -49,6 +49,8 @@ const jwtError = () =>
 const tokenExpiredError = () =>
   new ErrorHandler('Token expired, Please login again', 401);
 
+//This middleware intercepts errors passed to next() (or throwed with throw new Error..., or catch(err)) and handle them according to
+//their name property or status that is defined and a response will be sent to the client containing the error message
 module.exports = (err, req, resp, next) => {
   err.statusCode = err.statusCode * 1 || 500;
   err.status = err.status || 'error';
