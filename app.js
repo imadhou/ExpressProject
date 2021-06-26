@@ -1,5 +1,5 @@
 const express = require('express');
-//morgan for having a better log infos it's just a dev dependency
+//morgan for having a better log infos it's just a dev dependency e
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
