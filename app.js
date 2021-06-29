@@ -10,6 +10,7 @@ const ErrorHandler = require('./utils/errorHandlers');
 const globalErrorHandler = require('./controllers/ErrorController');
 const userRouter = require('./routes/userRouter');
 const tourRouter = require('./routes/tourRouter');
+const reviewRouter = require('./routes/reviewRouter');
 
 //the first step is to create an express application and to use the helmet middleware
 const app = express();
@@ -56,6 +57,7 @@ app.use((req, resp, next) => {
 //we call our routers (middleware) on the defined routes the non defined routes generate an error
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 app.all('*', (req, resp, next) => {
   next(new ErrorHandler(`can't find ${req.originalUrl} on the server`, 404));
 });

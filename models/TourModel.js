@@ -67,6 +67,35 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startLocation: {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   { toJSON: { virtuals: true } },
   { toObject: { virtuals: true } }
@@ -75,6 +104,11 @@ tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
 // tourSchema.pre('save', function (next) {
 //   console.log('doc will be saved');
 //   next();
@@ -83,6 +117,24 @@ tourSchema.virtual('durationWeeks').get(function () {
 //   console.log(doc);
 //   next();
 // });
+
+// tourSchema.pre('save', async function (next) {
+//   const guidesPromesses = this.guides.map(
+//     async (el) => await User.findById(el)
+//   );
+
+//   this.guides = await Promise.all(guidesPromesses);
+//   next();
+// });
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
+  next();
+});
+
 tourSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
   next();
