@@ -18,16 +18,30 @@ router.use('/:tourId/reviews', reviewRouter);
 
 router
   .route('/')
-  .get(authController.protectRoute, tourController.getAllTours)
-  .post(tourController.createTour);
+  .get(tourController.getAllTours)
+  .post(
+    authController.protectRoute,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.createTour
+  );
 
 router.route('/stats').get(tourController.getTourStats);
-router.route('/monthly/:year').get(tourController.getMonthlyPlan);
+router
+  .route('/monthly/:year')
+  .get(
+    authController.protectRoute,
+    authController.restrictTo('admin', 'lead-guide', 'guide'),
+    tourController.getMonthlyPlan
+  );
 
 router
   .route('/:id')
   .get(tourController.getTour)
-  .patch(tourController.updateTour)
+  .patch(
+    tourController.updateTour,
+    authController.protectRoute,
+    authController.restrictTo('admin', 'lead-guide')
+  )
   .delete(
     authController.protectRoute,
     authController.restrictTo('admin', 'lead-guide'),
