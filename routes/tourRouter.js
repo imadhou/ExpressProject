@@ -26,6 +26,13 @@ router
   );
 
 router.route('/stats').get(tourController.getTourStats);
+
+router
+  .route('/tours-within/:distance/center/:latlng')
+  .get(tourController.getToursWithin);
+
+router.route('/distances/:latlng').get(tourController.getDistances);
+
 router
   .route('/monthly/:year')
   .get(

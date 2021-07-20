@@ -87,3 +87,64 @@ exports.getMonthlyPlan = catchAsync(async (req, resp, next) => {
     },
   });
 });
+
+///tours-within/:distance/center/:latlng/unit/:unit
+exports.getToursWithin = catchAsync(async (req, resp, next) => {
+  const { distance, latlng } = req.params;
+  const [lat, lng] = latlng.split(',');
+  const radius = distance / 6378.1;
+  console.log(distance, latlng);
+
+  if (!lat || !lng) {
+    next(new ErrorHandler('No lat lang was specified lat,lng', 400));
+  }
+
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
+  resp.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      tours,
+    },
+  });
+});
+
+exports.getDistances = catchAsync(async (req, resp, next) => {
+  const { latlng } = req.params;
+  const [lat, lng] = latlng.split(',');
+
+  console.log(lat, lng);
+  if (!lat || !lng) {
+    next(new ErrorHandler('No lat lang was specified lat,lng', 400));
+  }
+
+  const tours = await Tour.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: 'Point',
+          coordinates: [lng * 1, lat * 1],
+        },
+        distanceField: 'distance',
+        distanceMultiplier: 0.001,
+      },
+    },
+    {
+      $project: {
+        distance: 1,
+        name: 1,
+      },
+    },
+  ]);
+  console.log('hhh');
+
+  resp.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      tours,
+    },
+  });
+});
