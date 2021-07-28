@@ -1,7 +1,6 @@
 const ErrorHandler = require('../utils/errorHandlers');
 
 const devError = (err, resp) => {
-  console.log(err);
   resp.status(err.statusCode).json({
     status: err.status,
     error: err,
